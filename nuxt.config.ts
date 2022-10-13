@@ -5,13 +5,18 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/color-mode',
   ],
+
   experimental: {
     reactivityTransform: true,
   },
+
   unocss: {
     preflight: true,
   },
+
   colorMode: {
     classSuffix: '',
   },
+
+  telemetry: false,
 })

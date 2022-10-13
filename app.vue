@@ -1,9 +1,9 @@
 <script setup>
 useHead({
-  title: 'Vitesse Nuxt 3',
+  title: 'Unnamed OCR PWA',
   link: [
     {
-      rel: 'icon', type: 'image/png', href: '/nuxt.png',
+      rel: 'icon', type: 'image/png', href: '/favicon.png',
     },
   ],
 })
