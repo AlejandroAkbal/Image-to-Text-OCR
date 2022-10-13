@@ -10,6 +10,12 @@ export default defineNuxtConfig({
     reactivityTransform: true,
   },
 
+  vite: {
+    define: {
+      'process.env.TESS_ENV': undefined,
+    },
+  },
+
   unocss: {
     preflight: true,
   },
