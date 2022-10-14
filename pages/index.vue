@@ -11,7 +11,7 @@ const isProcessing = ref(false)
 
 const progress = ref(0)
 const extractedText = ref('')
-// TODO: Confidence level
+const extractedConfidence = ref(0)
 
 const hasResults = computed(() => !isProcessing.value && extractedText.value)
 
@@ -59,6 +59,7 @@ async function onFormReset() {
 
   // progress.value = 0
   // extractedText.value = ''
+  // extractedConfidence.value = 0
 
   // Poor man's reset
   window.location.reload()
@@ -80,9 +81,10 @@ async function startRecognition(media) {
     },
   })
 
-  const text = await OcrRecognize(ocrWorker, media)
+  const { text, confidence } = await OcrRecognize(ocrWorker, media)
 
   extractedText.value = text
+  extractedConfidence.value = confidence
 
   isProcessing.value = false
 }
@@ -137,7 +139,7 @@ function cleanRenderMedia() {
         </p>
       </div>
 
-      <form class="space-y-8" @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
+      <form class="w-full max-w-prose space-y-8 " @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
         <!-- TODO: Language selector -->
 
         <!-- Media input -->
@@ -186,12 +188,28 @@ function cleanRenderMedia() {
           v-else
           class="space-y-2"
         >
-          <h3 class="text-lg font-semibold">
-            Recognized text
-          </h3>
+          <div class="flex justify-around">
+            <h3 class="text-lg font-semibold">
+              Recognized text
+            </h3>
+
+            <span class="inline-flex items-center rounded-full bg-indigo-900 px-2.5 py-0.5 text-xs font-medium -indigo-800">
+              <div
+                class="i-carbon-circle-filled -ml-0.5 mr-1.5 h-3 w-3"
+                :class="{
+                  'text-green': extractedConfidence >= 80,
+                  'text-amber': extractedConfidence >= 50 && extractedConfidence < 80,
+                  'text-red': extractedConfidence < 50,
+                }"
+                aria-hidden="true"
+              />
+
+              {{ extractedConfidence }}
+            </span>
+          </div>
 
           <output
-            class="block w-full h-fit text-black bg-white whitespace-pre-wrap p-1 border border-transparent rounded"
+            class="block text-black bg-white whitespace-pre-wrap p-1 border border-transparent rounded"
             v-text="extractedText"
           />
 

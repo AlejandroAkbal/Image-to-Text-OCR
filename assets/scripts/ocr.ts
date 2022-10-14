@@ -13,9 +13,9 @@ export async function OcrRecognize(worker: Tesseract.Worker, media: Tesseract.Im
   //   tessedit_pageseg_mode: PSM.AUTO,
   // })
 
-  const { data: { text } } = await worker.recognize(media)
+  const { data } = await worker.recognize(media)
 
   await worker.terminate()
 
-  return text
+  return data
 }
