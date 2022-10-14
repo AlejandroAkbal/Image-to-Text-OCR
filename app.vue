@@ -1,6 +1,11 @@
 <script setup>
 useHead({
   titleTemplate: titleChunk => titleChunk ? `${titleChunk} - Image to Text` : 'Image to Text',
+  meta: [
+    { name: 'description', content: 'Extract text from any image using OCR' },
+
+    { name: 'og:type', content: 'website' },
+  ],
   link: [
     {
       rel: 'icon', type: 'image/svg', href: '/favicon.svg',
