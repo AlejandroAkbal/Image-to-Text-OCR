@@ -1,5 +1,5 @@
 <p align='center'>
-  <img src='https://raw.githubusercontent.com/AlejandroAkbal/Image-to-Text-OCR/main/public/favicon.svg' alt='Image to Text OCR' height='100'/>
+  <img src='./public/favicon.svg' alt='Image to Text OCR' height='100'/>
 </p>
 
 <h1 align='center'>
