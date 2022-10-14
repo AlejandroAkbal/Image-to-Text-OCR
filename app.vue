@@ -3,7 +3,7 @@ useHead({
   titleTemplate: titleChunk => titleChunk ? `${titleChunk} - Unnamed OCR PWA` : 'Unnamed OCR PWA',
   link: [
     {
-      rel: 'icon', type: 'image/png', href: '/favicon.png',
+      rel: 'icon', type: 'image/svg', href: '/favicon.svg',
     },
   ],
 })
