@@ -108,7 +108,7 @@ function cleanRenderMedia() {
     <!-- Title & description -->
     <div class="text-center mb-8">
       <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-700 uppercase">
-        Unnamed OCR PWA
+        Image to Text
       </h1>
 
       <h2 class="text-gray-300 text-lg">

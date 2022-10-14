@@ -1,6 +1,6 @@
 <script setup>
 useHead({
-  titleTemplate: titleChunk => titleChunk ? `${titleChunk} - Unnamed OCR PWA` : 'Unnamed OCR PWA',
+  titleTemplate: titleChunk => titleChunk ? `${titleChunk} - Image to Text` : 'Image to Text',
   link: [
     {
       rel: 'icon', type: 'image/svg', href: '/favicon.svg',
