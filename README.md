@@ -6,7 +6,7 @@
 Image to Text OCR
 </h1>
 
-[Image to Text OCR](https://paste.photos/) is a utility website made by [Alejandro Akbal](https://akbal.dev)
+[Image to Text OCR](https://image-to-text-ocr.netlify.app) is a utility website made by [Alejandro Akbal](https://akbal.dev)
 for extracting text from any image using OCR.
 
 This tool was made for those moments where you take a photo of some text and wish you could have it digitally.
