@@ -2,6 +2,8 @@
 import { createWorker } from 'tesseract.js'
 import { OcrRecognize } from '@/assets/scripts/ocr'
 
+const SUPPORTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/pbm']
+
 const media = ref(null)
 const mediaRender = ref('')
 
@@ -9,6 +11,7 @@ const isProcessing = ref(false)
 
 const progress = ref(0)
 const extractedText = ref('')
+// TODO: Confidence level
 
 const hasResults = computed(() => !isProcessing.value && extractedText.value)
 
@@ -18,6 +21,11 @@ const hasResults = computed(() => !isProcessing.value && extractedText.value)
 function onFileDrop(event) {
   const eventMedia = event.dataTransfer.files[0]
 
+  if (!SUPPORTED_MIME_TYPES.includes(eventMedia.type)) {
+    alert(`Media of type "${eventMedia.type}" not supported`)
+    return
+  }
+
   renderMedia(eventMedia)
 
   media.value = eventMedia
@@ -25,6 +33,11 @@ function onFileDrop(event) {
 
 function onFileChange(event) {
   const eventMedia = event.target.files[0]
+
+  if (!SUPPORTED_MIME_TYPES.includes(eventMedia.type)) {
+    alert(`Media of type "${eventMedia.type}" not supported`)
+    return
+  }
 
   renderMedia(eventMedia)
 
@@ -132,6 +145,7 @@ function cleanRenderMedia() {
           v-if="!hasResults"
           class="flex justify-center rounded-md border-3 border-dashed border-gray-600 px-10 pt-9 pb-10"
           @drop.prevent="onFileDrop"
+          @dragover.prevent
         >
           <div class="space-y-4 text-center">
             <div class="i-carbon-image mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
@@ -146,8 +160,7 @@ function cleanRenderMedia() {
                 <input
                   type="file"
                   class="sr-only"
-                  accept="image/bmp,image/jpg,image/jpeg,image/png,image/pbm,image/webp"
-                  required
+                  :accept="SUPPORTED_MIME_TYPES.join(',')"
                   @change="onFileChange"
                   @load="cleanRenderMedia"
                 >
@@ -158,8 +171,12 @@ function cleanRenderMedia() {
               </p>
             </div>
 
-            <p class="text-sm text-gray-400">
-              JPG · PNG · WEBP · PBM · BMP
+            <p class="text-sm text-gray-400 uppercase">
+              {{
+                SUPPORTED_MIME_TYPES
+                  .map(mimeType => mimeType.replace('image/', ''))
+                  .join(' · ')
+              }}
             </p>
           </div>
         </div>
@@ -177,6 +194,8 @@ function cleanRenderMedia() {
             class="block w-full h-fit text-black bg-white whitespace-pre-wrap p-1 border border-transparent rounded"
             v-text="extractedText"
           />
+
+          <!-- TODO: Floating copy button on right -->
         </div>
 
         <!-- Buttons -->
