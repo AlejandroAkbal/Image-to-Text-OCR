@@ -5,7 +5,7 @@ useHead({
     { name: 'description', content: 'Extract text from any image using OCR' },
 
     { name: 'og:type', content: 'website' },
-    { name: 'og:image', content: '/social.png' },
+    { name: 'og:image', content: '/social.jpg' },
   ],
   link: [
     {
