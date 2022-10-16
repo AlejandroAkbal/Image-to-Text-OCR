@@ -15,6 +15,8 @@ const extractedConfidence = ref(0)
 
 const hasResults = computed(() => !isProcessing.value && extractedText.value)
 
+const { copy, copied } = useClipboard({ source: extractedText })
+
 /**
  * @param {DropEvent} event
  */
@@ -186,14 +188,14 @@ function cleanRenderMedia() {
         <!-- Output -->
         <div
           v-else
-          class="space-y-2"
+          class="space-y-6"
         >
           <div class="flex justify-around">
             <h3 class="text-lg font-semibold">
               Recognized text
             </h3>
 
-            <span class="inline-flex items-center rounded-full bg-indigo-900 px-2.5 py-0.5 text-xs font-medium -indigo-800">
+            <span class="inline-flex items-center rounded-full bg-indigo-800 px-2.5 py-0.5 text-xs font-medium">
               <div
                 class="i-carbon-circle-filled -ml-0.5 mr-1.5 h-3 w-3"
                 :class="{
@@ -208,12 +210,23 @@ function cleanRenderMedia() {
             </span>
           </div>
 
-          <output
-            class="block text-black bg-white whitespace-pre-wrap p-1 border border-transparent rounded"
-            v-text="extractedText"
-          />
+          <div class="relative">
+            <output
+              class="block text-black bg-white whitespace-pre-wrap p-1 border border-transparent rounded"
+              v-text="extractedText"
+            />
 
-          <!-- TODO: Floating copy button on right -->
+            <button
+              class="absolute right-0 top-0 text-white bg-indigo-700 hover:bg-indigo-800 border border-transparent rounded-full p-2 m-2"
+              focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
+              type="button"
+              @click="copy()"
+            >
+              <div class=" w-6 h-6" aria-hidden="true" :class="[copied ? 'i-carbon-task' : 'i-carbon-task-add']" />
+
+              <span class="sr-only">Copy output</span>
+            </button>
+          </div>
         </div>
 
         <!-- Buttons -->
