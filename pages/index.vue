@@ -1,10 +1,10 @@
 <script setup>
-import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { createWorker } from 'tesseract.js'
+import { useStorage } from '@vueuse/core'
+import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { OcrRecognize, supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
 
-// TODO: Save to localStorage
-const selectedLanguages = ref([supportedLanguages.find(language => language.label === 'English')])
+const selectedLanguages = useStorage('ocr-language', [supportedLanguages.find(language => language.label === 'English')])
 
 const media = ref(null)
 const mediaRender = ref('')
