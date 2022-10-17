@@ -1,8 +1,10 @@
 <script setup>
+import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { createWorker } from 'tesseract.js'
-import { OcrRecognize } from '@/assets/scripts/ocr'
+import { OcrRecognize, supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
 
-const SUPPORTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/pbm']
+// TODO: Save to localStorage
+const selectedLanguages = ref([supportedLanguages.find(language => language.label === 'English')])
 
 const media = ref(null)
 const mediaRender = ref('')
@@ -23,7 +25,7 @@ const { copy, copied } = useClipboard({ source: extractedText })
 function onFileDrop(event) {
   const eventMedia = event.dataTransfer.files[0]
 
-  if (!SUPPORTED_MIME_TYPES.includes(eventMedia.type)) {
+  if (!supportedMimeTypes.includes(eventMedia.type)) {
     alert(`Media of type "${eventMedia.type}" not supported`)
     return
   }
@@ -36,7 +38,7 @@ function onFileDrop(event) {
 function onFileChange(event) {
   const eventMedia = event.target.files[0]
 
-  if (!SUPPORTED_MIME_TYPES.includes(eventMedia.type)) {
+  if (!supportedMimeTypes.includes(eventMedia.type)) {
     alert(`Media of type "${eventMedia.type}" not supported`)
     return
   }
@@ -52,7 +54,7 @@ async function onFormSubmit() {
     return
   }
 
-  startRecognition(media.value)
+  startRecognition()
 }
 
 async function onFormReset() {
@@ -67,10 +69,7 @@ async function onFormReset() {
   window.location.reload()
 }
 
-/**
- * @param {Tesseract.ImageLike} media
- */
-async function startRecognition(media) {
+async function startRecognition() {
   isProcessing.value = true
 
   // Setup
@@ -83,7 +82,7 @@ async function startRecognition(media) {
     },
   })
 
-  const { text, confidence } = await OcrRecognize(ocrWorker, media)
+  const { text, confidence } = await OcrRecognize(ocrWorker, selectedLanguages.value, media.value)
 
   extractedText.value = text
   extractedConfidence.value = confidence
@@ -142,48 +141,110 @@ function cleanRenderMedia() {
       </div>
 
       <form class="w-full max-w-prose space-y-8 " @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
-        <!-- TODO: Language selector -->
+        <!--  -->
 
-        <!-- Media input -->
-        <div
+        <template
           v-if="!hasResults"
-          class="flex justify-center rounded-md border-3 border-dashed border-gray-600 px-10 pt-9 pb-10"
-          @drop.prevent="onFileDrop"
-          @dragover.prevent
         >
-          <div class="space-y-4 text-center">
-            <div class="i-carbon-image mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
+          <!-- Media input -->
+          <div
+            class="flex justify-center rounded-md border-3 border-dashed border-gray-600 px-10 pt-9 pb-10"
+            @drop.prevent="onFileDrop"
+            @dragover.prevent
+          >
+            <div class="space-y-4 text-center">
+              <div class="i-carbon-image mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
 
-            <div class="flex text-gray-300">
-              <label
-                class="relative cursor-pointer rounded-md bg-gray-8 font-medium text-indigo-400 hover:text-indigo-500 px-1"
-                focus-within="outline-none ring-2 ring-indigo-500 ring-offset-2"
-              >
-                <span>Upload an image</span>
-
-                <input
-                  type="file"
-                  class="sr-only"
-                  :accept="SUPPORTED_MIME_TYPES.join(',')"
-                  @change="onFileChange"
-                  @load="cleanRenderMedia"
+              <div class="flex text-gray-300">
+                <label
+                  class="relative cursor-pointer rounded-md bg-gray-8 font-medium text-indigo-400 hover:text-indigo-500 px-1"
+                  focus-within="outline-none ring-2 ring-indigo-500 ring-offset-2"
                 >
-              </label>
+                  <span>Upload an image</span>
 
-              <p class="pl-1">
-                or drag and drop
+                  <input
+                    type="file"
+                    class="sr-only"
+                    :accept="supportedMimeTypes.join(',')"
+                    @change="onFileChange"
+                    @load="cleanRenderMedia"
+                  >
+                </label>
+
+                <p class="pl-1">
+                  or drag and drop
+                </p>
+              </div>
+
+              <p class="text-sm text-gray-400 uppercase">
+                {{
+                  supportedMimeTypes
+                    .map(mimeType => mimeType.replace('image/', ''))
+                    .join(' · ')
+                }}
               </p>
             </div>
-
-            <p class="text-sm text-gray-400 uppercase">
-              {{
-                SUPPORTED_MIME_TYPES
-                  .map(mimeType => mimeType.replace('image/', ''))
-                  .join(' · ')
-              }}
-            </p>
           </div>
-        </div>
+
+          <!-- Language -->
+          <Listbox v-model="selectedLanguages" multiple as="div">
+            <ListboxLabel class="block text-center font-medium text-gray-300">
+              Image language
+              <span class="block text-sm font-normal text-gray-400 mt-1">
+                Tip: select similar languages for better results
+              </span>
+            </ListboxLabel>
+
+            <div class="relative mt-4">
+              <!--  -->
+
+              <div class="flex">
+                <!-- Output -->
+                <ListboxButton
+                  class="relative w-full max-w-xs cursor-default rounded-md border border-gray-600 bg-dark-600 py-1.5 pl-3 pr-10 mx-auto text-gray-200 text-left shadow-sm sm:text-sm"
+                  focus="border-indigo-500 outline-none ring-2 ring-indigo-500 ring-offset-2"
+                >
+                  <span class="block truncate">{{ selectedLanguages.map((language) => language.label).join(', ') }}</span>
+
+                  <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                    <div class="i-carbon-chevron-down h-5 w-5 text-gray-400" aria-hidden="true" />
+                  </span>
+                </ListboxButton>
+              </div>
+
+              <!-- Selector -->
+              <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+                <!--  -->
+
+                <ListboxOptions class="absolute z-10 mt-4 max-h-60 w-full overflow-auto rounded-md bg-dark-600 py-1 text-base shadow-lg ring ring-gray-600 focus:outline-none sm:text-sm">
+                  <!--  -->
+
+                  <ListboxOption v-for="language in supportedLanguages" :key="language.value" v-slot="{ active, selected }" as="template" :value="language">
+                    <li
+                      class="relative cursor-default select-none py-2 pl-3 pr-9"
+                      :class="[active ? 'text-white bg-indigo-600' : 'text-gray-200']"
+                    >
+                      <!--  -->
+
+                      <span class="block truncate" :class="[selected ? 'font-semibold' : 'font-normal']">
+                        {{ language.label }}
+                      </span>
+
+                      <span
+                        v-if="selected"
+                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                        :class="[active ? 'text-white' : 'text-indigo-600']"
+                      >
+
+                        <div class="i-carbon-checkmark h-5 w-5" aria-hidden="true" />
+                      </span>
+                    </li>
+                  </ListboxOption>
+                </ListboxOptions>
+              </transition>
+            </div>
+          </Listbox>
+        </template>
 
         <!-- Output -->
         <div

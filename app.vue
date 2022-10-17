@@ -29,6 +29,6 @@ html, body , #__nuxt{
 }
 
 html {
-  @apply text-white bg-dark-7;
+  @apply text-white bg-dark-700;
 }
 </style>

@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.27.0",
+    "@headlessui/vue": "^1.7.3",
     "@iconify-json/carbon": "^1.1.8",
     "@iconify-json/twemoji": "^1.1.5",
     "@nuxtjs/color-mode": "^3.1.8",
