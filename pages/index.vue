@@ -4,7 +4,10 @@ import { useStorage } from '@vueuse/core'
 import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { OcrRecognize, supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
 
-const selectedLanguages = useStorage('ocr-language', [supportedLanguages.find(language => language.label === 'English')])
+const defaultLanguage = supportedLanguages.find(language => language.label === 'English')
+
+// const selectedLanguages = useStorage('ocr-languages', [supportedLanguages.find(language => language.label === 'English')])
+const selectedLanguages = ref([defaultLanguage])
 
 const media = ref(null)
 const mediaRender = ref('')
