@@ -12,6 +12,14 @@
         target="_blank"
         aria-hidden="true"
       />
+      <a
+        class="i-carbon-logo-twitter w-8 h-8"
+        focus="outline-none ring-2 ring-indigo-500"
+        hover="text-white"
+        href="https://twitter.com/AlejandroAkbal"
+        target="_blank"
+        aria-hidden="true"
+      />
     </div>
 
     <h5 class="text-sm text-gray-400 text-center">
