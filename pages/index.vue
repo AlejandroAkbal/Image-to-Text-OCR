@@ -22,6 +22,40 @@ const hasResults = computed(() => !isProcessing.value && extractedText.value)
 
 const { copy, copied } = useClipboard({ source: extractedText })
 
+onMounted(async () => {
+  document.body.addEventListener('paste', onClipboardPaste)
+})
+
+onUnmounted(() => {
+  document.body.removeEventListener('paste', onClipboardPaste)
+})
+
+/**
+ * @param {ClipboardEvent} event
+ */
+function onClipboardPaste(event) {
+  event.preventDefault()
+  event.stopPropagation()
+
+  const clipboardData = event.clipboardData
+
+  const eventMedia = clipboardData.files[0]
+
+  if (!eventMedia) {
+    alert('Nothing pasted!')
+    return
+  }
+
+  if (!supportedMimeTypes.includes(eventMedia.type)) {
+    alert(`Media of type "${eventMedia.type}" not supported`)
+    return
+  }
+
+  renderMedia(eventMedia)
+
+  media.value = eventMedia
+}
+
 /**
  * @param {DropEvent} event
  */
