@@ -94,15 +94,14 @@ async function onFormSubmit() {
 }
 
 async function onFormReset() {
-  // media.value = null
-  // mediaRender.value = ''
+  media.value = null
+  mediaRender.value = ''
 
-  // progress.value = 0
-  // extractedText.value = ''
-  // extractedConfidence.value = 0
+  isProcessing.value = false
 
-  // Poor man's reset
-  window.location.reload()
+  progress.value = 0
+  extractedText.value = ''
+  extractedConfidence.value = 0
 }
 
 async function startRecognition() {
