@@ -8,6 +8,7 @@ export default defineNuxtConfig({
 
   experimental: {
     reactivityTransform: true,
+    inlineSSRStyles: false,
   },
 
   vite: {
@@ -16,9 +17,9 @@ export default defineNuxtConfig({
     },
   },
 
-  unocss: {
-    preflight: true,
-  },
+  css: [
+    '@unocss/reset/tailwind.css',
+  ],
 
   colorMode: {
     classSuffix: '',
