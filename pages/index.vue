@@ -1,6 +1,5 @@
 <script setup>
 import { createWorker } from 'tesseract.js'
-import { useStorage } from '@vueuse/core'
 import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { OcrRecognize, supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
 
@@ -162,9 +161,9 @@ function cleanRenderMedia() {
       <div v-if="mediaRender" class="mb-6 space-y-4">
         <!-- Media render -->
         <img
-          class="max-w-md w-full max-h-md h-auto border border-gray-600 rounded-md object-cover"
           :src="mediaRender"
           alt="Uploaded media"
+          class="max-w-md w-full max-h-md h-auto border border-gray-600 rounded-md object-cover"
         >
 
         <!-- Progress -->
@@ -190,7 +189,7 @@ function cleanRenderMedia() {
             @dragover.prevent
           >
             <div class="space-y-4 text-center">
-              <div class="i-carbon-image mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
+              <div aria-hidden="true" class="i-carbon-image mx-auto h-12 w-12 text-gray-400" />
 
               <div class="flex text-gray-300">
                 <label
@@ -200,9 +199,9 @@ function cleanRenderMedia() {
                   <span>Upload an image</span>
 
                   <input
-                    type="file"
-                    class="sr-only"
                     :accept="supportedMimeTypes.join(',')"
+                    class="sr-only"
+                    type="file"
                     @change="onFileChange"
                     @load="cleanRenderMedia"
                   >
@@ -224,7 +223,7 @@ function cleanRenderMedia() {
           </div>
 
           <!-- Language -->
-          <Listbox v-model="selectedLanguages" multiple as="div">
+          <Listbox v-model="selectedLanguages" as="div" multiple>
             <ListboxLabel class="block text-center font-medium text-gray-300">
               Image language
               <span class="block text-sm font-normal text-gray-400 mt-1">
@@ -241,39 +240,49 @@ function cleanRenderMedia() {
                   class="relative w-full max-w-xs cursor-default rounded-md border border-gray-600 bg-dark-600 py-1.5 pl-3 pr-10 mx-auto text-gray-200 text-left shadow-sm sm:text-sm"
                   focus="border-indigo-500 outline-none ring-2 ring-indigo-500 ring-offset-2"
                 >
-                  <span class="block truncate">{{ selectedLanguages.map((language) => language.label).join(', ') }}</span>
+                  <span class="block truncate">{{
+                    selectedLanguages.map((language) => language.label).join(', ')
+                  }}</span>
 
                   <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <div class="i-carbon-chevron-down h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <div aria-hidden="true" class="i-carbon-chevron-down h-5 w-5 text-gray-400" />
                   </span>
                 </ListboxButton>
               </div>
 
               <!-- Selector -->
-              <transition leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
+              <transition
+                leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+              >
                 <!--  -->
 
-                <ListboxOptions class="absolute z-10 mt-4 max-h-60 w-full overflow-auto rounded-md bg-dark-600 py-1 text-base shadow-lg ring ring-gray-600 focus:outline-none sm:text-sm">
+                <ListboxOptions
+                  class="absolute z-10 mt-4 max-h-60 w-full overflow-auto rounded-md bg-dark-600 py-1 text-base shadow-lg ring ring-gray-600 focus:outline-none sm:text-sm"
+                >
                   <!--  -->
 
-                  <ListboxOption v-for="language in supportedLanguages" :key="language.value" v-slot="{ active, selected }" as="template" :value="language">
+                  <ListboxOption
+                    v-for="language in supportedLanguages" :key="language.value"
+                    v-slot="{ active, selected }" :value="language" as="template"
+                  >
                     <li
-                      class="relative cursor-default select-none py-2 pl-3 pr-9"
                       :class="[active ? 'text-white bg-indigo-600' : 'text-gray-200']"
+                      class="relative cursor-default select-none py-2 pl-3 pr-9"
                     >
                       <!--  -->
 
-                      <span class="block truncate" :class="[selected ? 'font-semibold' : 'font-normal']">
+                      <span :class="[selected ? 'font-semibold' : 'font-normal']" class="block truncate">
                         {{ language.label }}
                       </span>
 
                       <span
                         v-if="selected"
-                        class="absolute inset-y-0 right-0 flex items-center pr-4"
                         :class="[active ? 'text-white' : 'text-indigo-600']"
+                        class="absolute inset-y-0 right-0 flex items-center pr-4"
                       >
 
-                        <div class="i-carbon-checkmark h-5 w-5" aria-hidden="true" />
+                        <div aria-hidden="true" class="i-carbon-checkmark h-5 w-5" />
                       </span>
                     </li>
                   </ListboxOption>
@@ -295,13 +304,13 @@ function cleanRenderMedia() {
 
             <span class="inline-flex items-center rounded-full bg-indigo-800 px-2.5 py-0.5 text-xs font-medium">
               <div
-                class="i-carbon-circle-filled -ml-0.5 mr-1.5 h-3 w-3"
                 :class="{
                   'text-green': extractedConfidence >= 80,
                   'text-amber': extractedConfidence >= 50 && extractedConfidence < 80,
                   'text-red': extractedConfidence < 50,
                 }"
                 aria-hidden="true"
+                class="i-carbon-circle-filled -ml-0.5 mr-1.5 h-3 w-3"
               />
 
               {{ extractedConfidence }}
@@ -320,7 +329,7 @@ function cleanRenderMedia() {
               type="button"
               @click="copy()"
             >
-              <div class=" w-6 h-6" aria-hidden="true" :class="[copied ? 'i-carbon-task' : 'i-carbon-task-add']" />
+              <div :class="[copied ? 'i-carbon-task' : 'i-carbon-task-add']" aria-hidden="true" class=" w-6 h-6" />
 
               <span class="sr-only">Copy output</span>
             </button>
@@ -331,14 +340,14 @@ function cleanRenderMedia() {
         <div class="text-center">
           <button
             v-if="!hasResults"
-            type="submit"
             :disabled="isProcessing"
             class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm disabled:bg-indigo-900"
-            hover="bg-indigo-700"
             focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
+            hover="bg-indigo-700"
+            type="submit"
           >
             <span class="bg-indigo-700 rounded-full p-2 -ml-2 mr-2">
-              <div class="i-carbon-scan-alt w-5 h-5" aria-hidden="true" />
+              <div aria-hidden="true" class="i-carbon-scan-alt w-5 h-5" />
             </span>
 
             Extract Text
@@ -346,13 +355,13 @@ function cleanRenderMedia() {
 
           <button
             v-else
-            type="reset"
             class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm disabled:bg-indigo-900"
-            hover="bg-indigo-700"
             focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
+            hover="bg-indigo-700"
+            type="reset"
           >
             <span class="bg-indigo-700 rounded-full p-2 -ml-2 mr-2">
-              <div class="i-carbon-reset w-5 h-5" aria-hidden="true" />
+              <div aria-hidden="true" class="i-carbon-reset w-5 h-5" />
             </span>
 
             Restart
