@@ -10,18 +10,18 @@
     "generate": "nuxi generate"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^0.27.0",
-    "@headlessui/vue": "^1.7.3",
-    "@iconify-json/carbon": "^1.1.8",
-    "@iconify-json/twemoji": "^1.1.5",
-    "@nuxtjs/color-mode": "^3.1.8",
-    "@pinia/nuxt": "^0.4.3",
-    "@unocss/nuxt": "^0.45.29",
-    "@vueuse/nuxt": "^9.3.0",
-    "eslint": "^8.25.0",
-    "nuxt": "^3.0.0-rc.11",
-    "pinia": "^2.0.23",
+    "@antfu/eslint-config": "^0.34.1",
+    "@headlessui/vue": "^1.7.7",
+    "@iconify-json/carbon": "^1.1.13",
+    "@iconify-json/twemoji": "^1.1.10",
+    "@nuxtjs/color-mode": "^3.2.0",
+    "@pinia/nuxt": "^0.4.6",
+    "@unocss/nuxt": "^0.48.4",
+    "@vueuse/nuxt": "^9.10.0",
+    "eslint": "^8.31.0",
+    "nuxt": "^3.0.0",
+    "pinia": "^2.0.28",
     "tesseract.js": "^3.0.3",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.4"
   }
 }
