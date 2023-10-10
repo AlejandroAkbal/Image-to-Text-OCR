@@ -18,6 +18,7 @@ const progress = ref(0)
 const extractedText = ref('')
 const extractedConfidence = ref(0)
 
+const hasImage = computed(() => !!media.value)
 const hasResults = computed(() => !isProcessing.value && extractedText.value)
 
 const { copy, copied } = useClipboard({ source: extractedText })
@@ -166,6 +167,7 @@ function cleanRenderMedia() {
 
       <div v-if="mediaRender" class="mb-6 space-y-4">
         <!-- Media render -->
+        <!-- TODO: Give size ratio to prevent jump -->
         <img
           :src="mediaRender"
           alt="Uploaded media"
@@ -174,8 +176,8 @@ function cleanRenderMedia() {
 
         <!-- Progress -->
         <p
-          v-if="isProcessing"
-          class="text-center mb-4"
+          :class="[isProcessing ? 'visible' : 'invisible']"
+          class="text-center mb-4 tabular-nums"
         >
           <span>{{ (progress).toLocaleString(undefined, { style: 'percent' }) }}</span>
           Progress
@@ -185,10 +187,10 @@ function cleanRenderMedia() {
       <form class="w-full max-w-prose space-y-8 " @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
         <!--  -->
 
+        <!-- Media input -->
         <template
-          v-if="!hasResults"
+          v-if="!hasImage"
         >
-          <!-- Media input -->
           <div
             class="flex justify-center rounded-md border-3 border-dashed border-gray-600 px-10 pt-9 pb-10"
             @drop.prevent="onFileDrop"
@@ -227,8 +229,10 @@ function cleanRenderMedia() {
               </p>
             </div>
           </div>
+        </template>
 
-          <!-- Language -->
+        <!-- Language -->
+        <template v-if="hasImage && !isProcessing && !hasResults">
           <Listbox v-model="selectedLanguages" as="div" multiple>
             <ListboxLabel class="block text-center font-medium text-gray-300">
               Image language
@@ -300,7 +304,7 @@ function cleanRenderMedia() {
 
         <!-- Output -->
         <div
-          v-else
+          v-if="hasResults"
           class="space-y-6"
         >
           <div class="flex justify-around">
@@ -343,11 +347,10 @@ function cleanRenderMedia() {
         </div>
 
         <!-- Buttons -->
-        <div class="text-center">
+        <div v-if="hasImage && !isProcessing" class="text-center">
           <button
             v-if="!hasResults"
-            :disabled="isProcessing"
-            class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm disabled:bg-indigo-900"
+            class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
             focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
             hover="bg-indigo-700"
             type="submit"
@@ -361,7 +364,7 @@ function cleanRenderMedia() {
 
           <button
             v-else
-            class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm disabled:bg-indigo-900"
+            class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
             focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
             hover="bg-indigo-700"
             type="reset"
