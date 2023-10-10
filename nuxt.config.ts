@@ -1,5 +1,3 @@
-import { pwa } from './config/pwa'
-
 export default defineNuxtConfig({
   ssr: false,
 
@@ -47,13 +45,11 @@ export default defineNuxtConfig({
     // },
   },
 
-  pwa,
+  // pwa,
 
   devtools: {
     enabled: true,
   },
-
-  sourcemap: false,
 
   telemetry: false,
 })

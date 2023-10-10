@@ -14,22 +14,13 @@ export const pwa: ModuleOptions = {
     name: appName,
     short_name: appName,
     description: appDescription,
-    theme_color: '#ffffff',
+    theme_color: '#1b1b1b',
+    background_color: '#1b1b1b',
     icons: [
       {
-        src: 'pwa-192x192.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
-      {
-        src: 'pwa-512x512.png',
-        sizes: '512x512',
-        type: 'image/png',
-      },
-      {
-        src: 'maskable-icon.png',
-        sizes: '512x512',
-        type: 'image/png',
+        src: 'favicon.svg',
+        sizes: '150x150',
+        type: 'image/svg+xml',
         purpose: 'any maskable',
       },
     ],
