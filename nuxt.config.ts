@@ -5,18 +5,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@unocss/nuxt',
     '@pinia/nuxt',
-    '@nuxtjs/color-mode',
-    '@vite-pwa/nuxt',
   ],
-
-  experimental: {
-    // when using generate, payload js assets included in sw precache manifest
-    // but missing on offline, disabling extraction it until fixed
-    payloadExtraction: false,
-    inlineSSRStyles: false,
-    renderJsonPayloads: true,
-    typedPages: true,
-  },
 
   vite: {
     define: {
@@ -27,10 +16,6 @@ export default defineNuxtConfig({
   css: [
     '@unocss/reset/tailwind.css',
   ],
-
-  colorMode: {
-    classSuffix: '',
-  },
 
   nitro: {
     esbuild: {
@@ -43,12 +28,6 @@ export default defineNuxtConfig({
     //   crawlLinks: false,
     //   routes: ['/'],
     // },
-  },
-
-  // pwa,
-
-  devtools: {
-    enabled: true,
   },
 
   telemetry: false,

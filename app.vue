@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {appDescription, appName} from '~/constants'
+import { appDescription, appName } from '~/constants'
 
 useHead({
   titleTemplate: titleChunk => titleChunk ? `${titleChunk} - ${appName}` : appName,
@@ -15,14 +15,15 @@ useHead({
   ],
   link: [
     {
-      rel: 'icon', type: 'image/svg', href: '/favicon.svg',
+      rel: 'icon',
+      type: 'image/svg',
+      href: '/favicon.svg',
     },
   ],
 })
 </script>
 
 <template>
-  <VitePwaManifest />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
