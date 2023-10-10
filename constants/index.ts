@@ -1,2 +1,2 @@
-export const appName = 'Image to Text'
-export const appDescription = 'Vitesse for Nuxt 3'
+export const appName = 'Image to Text OCR'
+export const appDescription = 'Extract text from any image using OCR, locally on your device, privacy friendly!'

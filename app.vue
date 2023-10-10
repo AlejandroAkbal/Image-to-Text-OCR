@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { appName } from '~/constants'
+import {appDescription, appName} from '~/constants'
 
 useHead({
   titleTemplate: titleChunk => titleChunk ? `${titleChunk} - ${appName}` : appName,
   meta: [
-    { name: 'description', content: 'Extract text from any image using OCR' },
+    { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+
+    { name: 'description', content: appDescription },
 
     { name: 'og:type', content: 'website' },
     { name: 'og:image', content: '/social.jpg' },
+
+    { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
   ],
   link: [
     {

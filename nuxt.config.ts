@@ -32,6 +32,23 @@ export default defineNuxtConfig({
   colorMode: {
     classSuffix: '',
   },
+  nitro: {
+    esbuild: {
+      options: {
+        target: 'esnext',
+      },
+    },
+    prerender: {
+      crawlLinks: false,
+      routes: ['/'],
+    },
+  },
+
+  pwa,
+
+  devtools: {
+    enabled: true,
+  },
 
   telemetry: false,
 })

@@ -41,3 +41,16 @@ pnpm build
 ```
 
 And you will see the generated files in `dist` that are ready to be served.
+
+### Merge template
+
+To merge the base GitHub template do:
+
+```bash
+git remote add template git@github.com:antfu/vitesse-nuxt3.git
+git fetch --all
+
+git merge --allow-unrelated-histories template/main
+# Or
+git merge template/main --strategy-option ours --squash
+```
