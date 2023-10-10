@@ -9,7 +9,7 @@ const defaultLanguage = supportedLanguages.find(language => language.label === '
 
 const selectedLanguages = ref<Language[]>([defaultLanguage])
 
-const media = ref(null)
+const media = ref<File>(null)
 const mediaRender = ref('')
 
 const isProcessing = ref(false)
@@ -48,12 +48,15 @@ function onClipboardPaste(event: ClipboardEvent) {
   event.preventDefault()
   event.stopPropagation()
 
+  if (isProcessing.value || hasResults.value)
+    return
+
   const clipboardData = event.clipboardData
 
   const eventMedia = clipboardData.files[0]
 
   if (!eventMedia) {
-    alert('Nothing pasted!')
+    alert('The clipboard does not contain any media!')
     return
   }
 
@@ -121,6 +124,8 @@ async function startRecognition() {
   await ocrWorker.reinitialize(parsedLocales)
 
   // TODO: Upscale image
+  //  https://github.com/thekevinscott/UpscalerJS
+  // https://github.com/lovell/sharp
 
   const { data: { text, confidence } } = await ocrWorker.recognize(media.value)
 
@@ -133,10 +138,7 @@ async function startRecognition() {
   isProcessing.value = false
 }
 
-/**
- * @param {Blob|MediaSource} media
- */
-function renderMedia(media) {
+function renderMedia(media: Blob | MediaSource) {
   const objectUrl = URL.createObjectURL(media)
 
   mediaRender.value = objectUrl
