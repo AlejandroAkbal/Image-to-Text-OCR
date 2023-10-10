@@ -127,7 +127,9 @@ async function startRecognition() {
   //  https://github.com/thekevinscott/UpscalerJS
   // https://github.com/lovell/sharp
 
-  const { data: { text, confidence } } = await ocrWorker.recognize(media.value)
+  const { data: { text, confidence } } = await ocrWorker.recognize(media.value, {
+    rotateAuto: true,
+  })
 
   // TODO: Investigate crash
   // await ocrWorker.terminate()
