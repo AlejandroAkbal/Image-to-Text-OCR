@@ -1,7 +1,8 @@
 import { pwa } from './config/pwa'
-import { appDescription } from './constants/index'
 
 export default defineNuxtConfig({
+  ssr: false,
+
   modules: [
     '@vueuse/nuxt',
     '@unocss/nuxt',
@@ -32,16 +33,18 @@ export default defineNuxtConfig({
   colorMode: {
     classSuffix: '',
   },
+
   nitro: {
     esbuild: {
       options: {
         target: 'esnext',
       },
     },
-    prerender: {
-      crawlLinks: false,
-      routes: ['/'],
-    },
+    // TODO: Disabled until prerendering works
+    // prerender: {
+    //   crawlLinks: false,
+    //   routes: ['/'],
+    // },
   },
 
   pwa,
@@ -49,6 +52,8 @@ export default defineNuxtConfig({
   devtools: {
     enabled: true,
   },
+
+  sourcemap: false,
 
   telemetry: false,
 })
