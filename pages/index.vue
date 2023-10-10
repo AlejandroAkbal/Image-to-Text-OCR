@@ -1,25 +1,32 @@
-<script setup>
+<script setup lang="ts">
+import type { LoggerMessage } from 'tesseract.js'
 import { createWorker } from 'tesseract.js'
 import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { OcrRecognize, supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
+import type { Language } from '@/assets/scripts/ocr'
+import { supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
 
 const defaultLanguage = supportedLanguages.find(language => language.label === 'English')
 
-// const selectedLanguages = useStorage('ocr-languages', [supportedLanguages.find(language => language.label === 'English')])
-const selectedLanguages = ref([defaultLanguage])
+const selectedLanguages = ref<Language[]>([defaultLanguage])
 
 const media = ref(null)
 const mediaRender = ref('')
 
 const isProcessing = ref(false)
-
 const progress = ref(0)
+
 const extractedText = ref('')
 const extractedConfidence = ref(0)
 
 const hasResults = computed(() => !isProcessing.value && extractedText.value)
 
 const { copy, copied } = useClipboard({ source: extractedText })
+
+const ocrWorker = await createWorker(undefined,
+  undefined,
+  {
+    logger: ocrWorkerLogger,
+  })
 
 onMounted(async () => {
   document.body.addEventListener('paste', onClipboardPaste)
@@ -29,10 +36,14 @@ onUnmounted(() => {
   document.body.removeEventListener('paste', onClipboardPaste)
 })
 
-/**
- * @param {ClipboardEvent} event
- */
-function onClipboardPaste(event) {
+function ocrWorkerLogger(message: LoggerMessage) {
+  if (message.status !== 'recognizing text')
+    return
+
+  progress.value = message.progress
+}
+
+function onClipboardPaste(event: ClipboardEvent) {
   event.preventDefault()
   event.stopPropagation()
 
@@ -55,10 +66,7 @@ function onClipboardPaste(event) {
   media.value = eventMedia
 }
 
-/**
- * @param {DropEvent} event
- */
-function onFileDrop(event) {
+function onFileDrop(event: DropEvent) {
   const eventMedia = event.dataTransfer.files[0]
 
   if (!supportedMimeTypes.includes(eventMedia.type)) {
@@ -90,7 +98,7 @@ async function onFormSubmit() {
     return
   }
 
-  startRecognition()
+  await startRecognition()
 }
 
 async function onFormReset() {
@@ -107,17 +115,16 @@ async function onFormReset() {
 async function startRecognition() {
   isProcessing.value = true
 
-  // Setup
-  const ocrWorker = createWorker({
-    logger: (message) => {
-      if (message.status !== 'recognizing text')
-        return
+  const parsedLocales = selectedLanguages.value.map(language => language.value).join('+')
 
-      progress.value = message.progress
-    },
-  })
+  await ocrWorker.reinitialize(parsedLocales)
 
-  const { text, confidence } = await OcrRecognize(ocrWorker, selectedLanguages.value, media.value)
+  // TODO: Upscale image
+
+  const { data: { text, confidence } } = await ocrWorker.recognize(media.value)
+
+  // TODO: Investigate crash
+  // await ocrWorker.terminate()
 
   extractedText.value = text
   extractedConfidence.value = confidence
@@ -226,7 +233,7 @@ function cleanRenderMedia() {
             <ListboxLabel class="block text-center font-medium text-gray-300">
               Image language
               <span class="block text-sm font-normal text-gray-400 mt-1">
-                Tip: select similar languages for better results
+                Tip: select similar languages for better results, at the cost of speed
               </span>
             </ListboxLabel>
 

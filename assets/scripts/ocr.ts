@@ -1,30 +1,11 @@
-import type Tesseract from 'tesseract.js'
-// import { OEM, PSM } from 'tesseract.js'
-
-export async function OcrRecognize(worker: Tesseract.Worker, languages: typeof supportedLanguages, media: Tesseract.ImageLike) {
-  const parsedLocales = languages.map(language => language.value).join('+')
-
-  await worker.load()
-
-  await worker.loadLanguage(parsedLocales)
-
-  await worker.initialize(parsedLocales)
-
-  // await worker.setParameters({
-  //   tessedit_ocr_engine_mode: OEM.LSTM_ONLY,
-  //   tessedit_pageseg_mode: PSM.AUTO,
-  // })
-
-  const { data } = await worker.recognize(media)
-
-  await worker.terminate()
-
-  return data
-}
-
 export const supportedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp', 'image/pbm']
 
-export const supportedLanguages = [
+export interface Language {
+  value: string
+  label: string
+}
+
+export const supportedLanguages: Language[] = [
   { value: 'afr', label: 'Afrikaans' },
   { value: 'amh', label: 'Amharic' },
   { value: 'ara', label: 'Arabic' },
