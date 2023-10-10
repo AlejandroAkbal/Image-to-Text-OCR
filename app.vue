@@ -1,6 +1,8 @@
-<script setup>
+<script setup lang="ts">
+import { appName } from '~/constants'
+
 useHead({
-  titleTemplate: titleChunk => titleChunk ? `${titleChunk} - Image to Text` : 'Image to Text',
+  titleTemplate: titleChunk => titleChunk ? `${titleChunk} - ${appName}` : appName,
   meta: [
     { name: 'description', content: 'Extract text from any image using OCR' },
 
@@ -16,6 +18,7 @@ useHead({
 </script>
 
 <template>
+  <VitePwaManifest />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
