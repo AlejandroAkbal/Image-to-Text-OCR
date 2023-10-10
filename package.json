@@ -2,6 +2,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@8.8.0",
+  "engines": {
+    "node": "^20"
+  },
   "scripts": {
     "build": "nuxi build",
     "dev": "nuxi dev",
