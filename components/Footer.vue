@@ -32,6 +32,8 @@
     <h3 class="text-center text-sm text-gray-400">
       Privacy friendly; everything is performed on your device, no data is sent to any server.
       <br>
+      No cookies, no tracking, no ads.
+      <br>
       Created by <a href="https://akbal.dev" target="_blank" class="underline">Alejandro Akbal</a>.
     </h3>
   </footer>
