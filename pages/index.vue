@@ -2,14 +2,18 @@
 import type { LoggerMessage } from 'tesseract.js'
 import { createWorker } from 'tesseract.js'
 import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import type { Ref, UnwrapRef } from 'vue'
 import type { Language } from '@/assets/scripts/ocr'
 import { supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
 
 const defaultLanguage = supportedLanguages.find(language => language.label === 'English')
 
-const selectedLanguages = ref<Language[]>([defaultLanguage])
+if (!defaultLanguage)
+  throw new Error('Default language not found')
 
-const media = ref<File>(null)
+const selectedLanguages: Ref<UnwrapRef<(Language)[]>> = ref([defaultLanguage])
+
+const media = ref<File | null>(null)
 const mediaRender = ref('')
 
 const isProcessing = ref(false)
@@ -23,14 +27,16 @@ const hasResults = computed(() => !isProcessing.value && extractedText.value)
 
 const { copy, copied } = useClipboard({ source: extractedText })
 
-const ocrWorker = await createWorker(undefined,
-  undefined,
-  {
-    logger: ocrWorkerLogger,
-  })
+let ocrWorker: Tesseract.Worker | undefined
 
 onMounted(async () => {
   document.body.addEventListener('paste', onClipboardPaste)
+
+  onNuxtReady(async () => {
+    ocrWorker = await createWorker(undefined, undefined, {
+      logger: ocrWorkerLogger,
+    })
+  })
 })
 
 onUnmounted(() => {
@@ -53,6 +59,11 @@ function onClipboardPaste(event: ClipboardEvent) {
 
   const clipboardData = event.clipboardData
 
+  if (!clipboardData) {
+    alert('The clipboard does not contain any data!')
+    return
+  }
+
   const eventMedia = clipboardData.files[0]
 
   if (!eventMedia) {
@@ -70,7 +81,12 @@ function onClipboardPaste(event: ClipboardEvent) {
   media.value = eventMedia
 }
 
-function onFileDrop(event: DropEvent) {
+function onFileDrop(event: DragEvent) {
+  if (!event.dataTransfer) {
+    alert('The clipboard does not contain any data!')
+    return
+  }
+
   const eventMedia = event.dataTransfer.files[0]
 
   if (!supportedMimeTypes.includes(eventMedia.type)) {
@@ -83,7 +99,12 @@ function onFileDrop(event: DropEvent) {
   media.value = eventMedia
 }
 
-function onFileChange(event) {
+function onFileChange(event: Event) {
+  if (!event.target) {
+    alert('The clipboard does not contain any data!')
+    return
+  }
+
   const eventMedia = event.target.files[0]
 
   if (!supportedMimeTypes.includes(eventMedia.type)) {
@@ -117,6 +138,16 @@ async function onFormReset() {
 }
 
 async function startRecognition() {
+  if (!ocrWorker) {
+    alert('OCR worker not initialized, please wait a few seconds and try again!')
+    return
+  }
+
+  if (!media.value) {
+    alert('No media selected!')
+    return
+  }
+
   isProcessing.value = true
 
   const parsedLocales = selectedLanguages.value.map(language => language.value).join('+')
@@ -152,16 +183,16 @@ function cleanRenderMedia() {
 </script>
 
 <template>
-  <div class="py-10 flex-auto">
+  <div class="flex-auto py-10">
     <!--  -->
 
     <!-- Title & description -->
-    <div class="text-center mb-8">
-      <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-700 uppercase">
+    <div class="mb-8 text-center">
+      <h1 class="from-indigo-400 to-pink-700 bg-gradient-to-r bg-clip-text text-2xl font-extrabold uppercase text-transparent">
         Image to Text
       </h1>
 
-      <h2 class="text-gray-300 text-lg">
+      <h2 class="text-lg text-gray-300">
         Extract text from any image using OCR
       </h2>
     </div>
@@ -175,20 +206,20 @@ function cleanRenderMedia() {
         <img
           :src="mediaRender"
           alt="Uploaded media"
-          class="max-w-md w-full max-h-md h-auto border border-gray-600 rounded-md object-cover"
+          class="h-auto max-h-md max-w-md w-full border border-gray-600 rounded-md object-cover"
         >
 
         <!-- Progress -->
         <p
           :class="[isProcessing ? 'visible' : 'invisible']"
-          class="text-center mb-4 tabular-nums"
+          class="mb-4 text-center tabular-nums"
         >
           <span>{{ (progress).toLocaleString(undefined, { style: 'percent' }) }}</span>
           Progress
         </p>
       </div>
 
-      <form class="w-full max-w-prose space-y-8 " @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
+      <form class="max-w-prose w-full space-y-8" @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
         <!--  -->
 
         <!-- Media input -->
@@ -196,16 +227,16 @@ function cleanRenderMedia() {
           v-if="!hasImage"
         >
           <div
-            class="flex justify-center rounded-md border-3 border-dashed border-gray-600 px-10 pt-9 pb-10"
+            class="flex justify-center border-3 border-gray-600 rounded-md border-dashed px-10 pb-10 pt-9"
             @drop.prevent="onFileDrop"
             @dragover.prevent
           >
-            <div class="space-y-4 text-center">
+            <div class="text-center space-y-4">
               <div aria-hidden="true" class="i-carbon-image mx-auto h-12 w-12 text-gray-400" />
 
               <div class="flex text-gray-300">
                 <label
-                  class="relative cursor-pointer rounded-md bg-gray-8 font-medium text-indigo-400 hover:text-indigo-500 px-1"
+                  class="relative cursor-pointer rounded-md bg-gray-8 px-1 font-medium text-indigo-400 hover:text-indigo-500"
                   focus-within="outline-none ring-2 ring-indigo-500 ring-offset-2"
                 >
                   <span>Upload an image</span>
@@ -224,7 +255,7 @@ function cleanRenderMedia() {
                 </p>
               </div>
 
-              <p class="text-sm text-gray-400 uppercase">
+              <p class="text-sm uppercase text-gray-400">
                 {{
                   supportedMimeTypes
                     .map(mimeType => mimeType.replace('image/', ''))
@@ -240,7 +271,7 @@ function cleanRenderMedia() {
           <Listbox v-model="selectedLanguages" as="div" multiple>
             <ListboxLabel class="block text-center font-medium text-gray-300">
               Image language
-              <span class="block text-sm font-normal text-gray-400 mt-1">
+              <span class="mt-1 block text-sm font-normal text-gray-400">
                 Tip: select similar languages for better results, at the cost of speed
               </span>
             </ListboxLabel>
@@ -251,7 +282,7 @@ function cleanRenderMedia() {
               <div class="flex">
                 <!-- Output -->
                 <ListboxButton
-                  class="relative w-full max-w-xs cursor-default rounded-md border border-gray-600 bg-dark-600 py-1.5 pl-3 pr-10 mx-auto text-gray-200 text-left shadow-sm sm:text-sm"
+                  class="relative mx-auto max-w-xs w-full cursor-default border border-gray-600 rounded-md bg-dark-600 py-1.5 pl-3 pr-10 text-left text-gray-200 shadow-sm sm:text-sm"
                   focus="border-indigo-500 outline-none ring-2 ring-indigo-500 ring-offset-2"
                 >
                   <span class="block truncate">{{
@@ -272,7 +303,7 @@ function cleanRenderMedia() {
                 <!--  -->
 
                 <ListboxOptions
-                  class="absolute z-10 mt-4 max-h-60 w-full overflow-auto rounded-md bg-dark-600 py-1 text-base shadow-lg ring ring-gray-600 focus:outline-none sm:text-sm"
+                  class="absolute z-10 mt-4 max-h-60 w-full overflow-auto rounded-md bg-dark-600 py-1 text-base shadow-lg ring ring-gray-600 sm:text-sm focus:outline-none"
                 >
                   <!--  -->
 
@@ -317,14 +348,14 @@ function cleanRenderMedia() {
             </h3>
 
             <span class="inline-flex items-center rounded-full bg-indigo-800 px-2.5 py-0.5 text-xs font-medium">
-              <div
+              <i
                 :class="{
                   'text-green': extractedConfidence >= 80,
                   'text-amber': extractedConfidence >= 50 && extractedConfidence < 80,
                   'text-red': extractedConfidence < 50,
                 }"
                 aria-hidden="true"
-                class="i-carbon-circle-filled -ml-0.5 mr-1.5 h-3 w-3"
+                class="i-carbon-circle-filled mr-1.5 h-3 w-3 -ml-0.5"
               />
 
               {{ extractedConfidence }}
@@ -333,17 +364,17 @@ function cleanRenderMedia() {
 
           <div class="relative">
             <output
-              class="block text-black bg-white whitespace-pre-wrap p-1 border border-transparent rounded"
+              class="block whitespace-pre-wrap border border-transparent rounded bg-white p-1 text-black"
               v-text="extractedText"
             />
 
             <button
-              class="absolute right-0 top-0 text-white bg-indigo-700 hover:bg-indigo-800 border border-transparent rounded-full p-2 m-2"
+              class="absolute right-0 top-0 m-2 border border-transparent rounded-full bg-indigo-700 p-2 text-white hover:bg-indigo-800"
               focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
               type="button"
               @click="copy()"
             >
-              <div :class="[copied ? 'i-carbon-task' : 'i-carbon-task-add']" aria-hidden="true" class=" w-6 h-6" />
+              <div :class="[copied ? 'i-carbon-task' : 'i-carbon-task-add']" aria-hidden="true" class="h-6 w-6" />
 
               <span class="sr-only">Copy output</span>
             </button>
@@ -354,13 +385,13 @@ function cleanRenderMedia() {
         <div v-if="hasImage && !isProcessing" class="text-center">
           <button
             v-if="!hasResults"
-            class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
+            class="inline-flex items-center border border-transparent rounded-full bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
             focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
             hover="bg-indigo-700"
             type="submit"
           >
-            <span class="bg-indigo-700 rounded-full p-2 -ml-2 mr-2">
-              <div aria-hidden="true" class="i-carbon-scan-alt w-5 h-5" />
+            <span class="mr-2 rounded-full bg-indigo-700 p-2 -ml-2">
+              <div aria-hidden="true" class="i-carbon-scan-alt h-5 w-5" />
             </span>
 
             Extract Text
@@ -368,13 +399,13 @@ function cleanRenderMedia() {
 
           <button
             v-else
-            class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
+            class="inline-flex items-center border border-transparent rounded-full bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
             focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
             hover="bg-indigo-700"
             type="reset"
           >
-            <span class="bg-indigo-700 rounded-full p-2 -ml-2 mr-2">
-              <div aria-hidden="true" class="i-carbon-reset w-5 h-5" />
+            <span class="mr-2 rounded-full bg-indigo-700 p-2 -ml-2">
+              <div aria-hidden="true" class="i-carbon-reset h-5 w-5" />
             </span>
 
             Restart
