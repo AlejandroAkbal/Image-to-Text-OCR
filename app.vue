@@ -3,6 +3,9 @@ import { appDescription, appName } from '~/constants'
 
 useHead({
   titleTemplate: titleChunk => titleChunk ? `${titleChunk} - ${appName}` : appName,
+  htmlAttrs: {
+    lang: 'en',
+  },
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' },
 
