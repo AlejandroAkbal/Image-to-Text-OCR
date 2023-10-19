@@ -1,8 +1,8 @@
 <template>
-  <footer class="pb-5">
+  <footer class="bg-dark-400 p-5 space-y-8">
+    <!-- Social -->
     <div
-      text="xl gray4"
-      class="m-5 flex justify-center gap-3"
+      class="flex justify-center gap-6 -mt-16"
     >
       <a
         class="i-carbon-logo-github h-8 w-8"
@@ -29,12 +29,18 @@
       </a>
     </div>
 
-    <h3 class="text-center text-sm text-gray-400">
-      Privacy friendly; everything is performed on your device, no data is sent to any server.
-      <br>
-      No cookies, no tracking, no ads.
-      <br>
-      Created by <a href="https://akbal.dev" target="_blank" class="underline">Alejandro Akbal</a>.
-    </h3>
+    <!-- Text -->
+    <div class="text-center text-sm text-gray-400 space-y-2">
+      <p>
+        Privacy friendly.
+        everything is performed on your device, no data is sent to any server.
+      </p>
+      <p>
+        No cookies, no tracking, no ads.
+      </p>
+      <p>
+        Created by <a href="https://akbal.dev" target="_blank" class="underline">Alejandro Akbal</a>.
+      </p>
+    </div>
   </footer>
 </template>

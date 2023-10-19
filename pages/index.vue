@@ -3,6 +3,7 @@ import type { LoggerMessage } from 'tesseract.js'
 import { createWorker } from 'tesseract.js'
 import { Listbox, ListboxButton, ListboxLabel, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import type { Ref, UnwrapRef } from 'vue'
+import { appDescription, appName } from '../constants'
 import type { Language } from '@/assets/scripts/ocr'
 import { supportedLanguages, supportedMimeTypes } from '@/assets/scripts/ocr'
 
@@ -183,235 +184,262 @@ function cleanRenderMedia() {
 </script>
 
 <template>
-  <div class="flex-auto py-10">
-    <!--  -->
+  <div class="my-12 flex-auto">
+    <section class="min-h-[75vh]">
+      <!-- Title & description -->
+      <div class="text-center">
+        <h1 class="from-indigo-400 to-pink-700 bg-gradient-to-r bg-clip-text text-2xl font-extrabold uppercase text-transparent">
+          {{ appName }}
+        </h1>
 
-    <!-- Title & description -->
-    <div class="mb-8 text-center">
-      <h1 class="from-indigo-400 to-pink-700 bg-gradient-to-r bg-clip-text text-2xl font-extrabold uppercase text-transparent">
-        Image to Text
-      </h1>
-
-      <h2 class="text-lg text-gray-300">
-        Extract text from any image using OCR
-      </h2>
-    </div>
-
-    <div class="grid place-items-center">
-      <!--  -->
-
-      <div v-if="mediaRender" class="mb-6 space-y-4">
-        <!-- Media render -->
-        <!-- TODO: Give size ratio to prevent jump -->
-        <img
-          :src="mediaRender"
-          alt="Uploaded media"
-          class="h-auto max-h-md max-w-md w-full border border-gray-600 rounded-md object-cover"
-        >
-
-        <!-- Progress -->
-        <p
-          :class="[isProcessing ? 'visible' : 'invisible']"
-          class="mb-4 text-center tabular-nums"
-        >
-          <span>{{ (progress).toLocaleString(undefined, { style: 'percent' }) }}</span>
-          Progress
-        </p>
+        <h2 class="mt-2 text-lg text-gray-300">
+          {{ appDescription }}
+        </h2>
       </div>
 
-      <form class="max-w-prose w-full space-y-8" @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
+      <div class="grid mt-12 place-items-center gap-6">
         <!--  -->
 
-        <!-- Media input -->
-        <template
-          v-if="!hasImage"
-        >
-          <div
-            class="flex justify-center border-3 border-gray-600 rounded-md border-dashed px-10 pb-10 pt-9"
-            @drop.prevent="onFileDrop"
-            @dragover.prevent
+        <div v-if="mediaRender" class="space-y-4">
+          <!-- Media render -->
+          <!-- TODO: Give size ratio to prevent jump -->
+          <img
+            :src="mediaRender"
+            alt="Uploaded media"
+            class="h-auto max-h-md max-w-md w-full border border-gray-600 rounded-md object-cover"
           >
-            <div class="text-center space-y-4">
-              <div aria-hidden="true" class="i-carbon-image mx-auto h-12 w-12 text-gray-400" />
 
-              <div class="flex text-gray-300">
-                <label
-                  class="relative cursor-pointer rounded-md bg-gray-8 px-1 font-medium text-indigo-400 hover:text-indigo-500"
-                  focus-within="outline-none ring-2 ring-indigo-500 ring-offset-2"
-                >
-                  <span>Upload an image</span>
+          <!-- Progress -->
+          <p
+            :class="[isProcessing ? 'visible' : 'invisible']"
+            class="mb-4 text-center tabular-nums"
+          >
+            <span>{{ (progress).toLocaleString(undefined, { style: 'percent' }) }}</span>
+            Progress
+          </p>
+        </div>
 
-                  <input
-                    :accept="supportedMimeTypes.join(',')"
-                    class="sr-only"
-                    type="file"
-                    @change="onFileChange"
-                    @load="cleanRenderMedia"
+        <form class="max-w-prose w-full space-y-8" @submit.prevent="onFormSubmit" @reset.prevent="onFormReset">
+          <!--  -->
+
+          <!-- Media input -->
+          <template
+            v-if="!hasImage"
+          >
+            <div
+              class="flex justify-center border-3 border-gray-600 rounded-md border-dashed px-10 pb-10 pt-9"
+              @drop.prevent="onFileDrop"
+              @dragover.prevent
+            >
+              <div class="text-center space-y-4">
+                <div aria-hidden="true" class="i-carbon-image mx-auto h-12 w-12 text-gray-400" />
+
+                <div class="flex text-gray-300">
+                  <label
+                    class="relative cursor-pointer rounded-md bg-gray-8 px-1 font-medium text-indigo-400 hover:text-indigo-500"
+                    focus-within="outline-none ring-2 ring-indigo-500 ring-offset-2"
                   >
-                </label>
+                    <span>Upload an image</span>
 
-                <p class="pl-1">
-                  or drag and drop
+                    <input
+                      :accept="supportedMimeTypes.join(',')"
+                      class="sr-only"
+                      type="file"
+                      @change="onFileChange"
+                      @load="cleanRenderMedia"
+                    >
+                  </label>
+
+                  <p class="pl-1">
+                    or drag and drop
+                  </p>
+                </div>
+
+                <p class="text-sm uppercase text-gray-400">
+                  {{
+                    supportedMimeTypes
+                      .map(mimeType => mimeType.replace('image/', ''))
+                      .join(' · ')
+                  }}
                 </p>
               </div>
-
-              <p class="text-sm uppercase text-gray-400">
-                {{
-                  supportedMimeTypes
-                    .map(mimeType => mimeType.replace('image/', ''))
-                    .join(' · ')
-                }}
-              </p>
             </div>
-          </div>
-        </template>
+          </template>
 
-        <!-- Language -->
-        <template v-if="hasImage && !isProcessing && !hasResults">
-          <Listbox v-model="selectedLanguages" as="div" multiple>
-            <ListboxLabel class="block text-center font-medium text-gray-300">
-              Image language
-              <span class="mt-1 block text-sm font-normal text-gray-400">
-                Tip: select similar languages for better results, at the cost of speed
-              </span>
-            </ListboxLabel>
+          <!-- Language -->
+          <template v-if="hasImage && !isProcessing && !hasResults">
+            <Listbox v-model="selectedLanguages" as="div" multiple>
+              <ListboxLabel class="block text-center font-medium text-gray-300">
+                Image language
+                <span class="mt-1 block text-sm font-normal text-gray-400">
+                  Tip: select similar languages for better results, at the cost of speed
+                </span>
+              </ListboxLabel>
 
-            <div class="relative mt-4">
-              <!--  -->
-
-              <div class="flex">
-                <!-- Output -->
-                <ListboxButton
-                  class="relative mx-auto max-w-xs w-full cursor-default border border-gray-600 rounded-md bg-dark-600 py-1.5 pl-3 pr-10 text-left text-gray-200 shadow-sm sm:text-sm"
-                  focus="border-indigo-500 outline-none ring-2 ring-indigo-500 ring-offset-2"
-                >
-                  <span class="block truncate">{{
-                    selectedLanguages.map((language) => language.label).join(', ')
-                  }}</span>
-
-                  <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                    <div aria-hidden="true" class="i-carbon-chevron-down h-5 w-5 text-gray-400" />
-                  </span>
-                </ListboxButton>
-              </div>
-
-              <!-- Selector -->
-              <transition
-                leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
-                leave-to-class="opacity-0"
-              >
+              <div class="relative mt-4">
                 <!--  -->
 
-                <ListboxOptions
-                  class="absolute z-10 mt-4 max-h-60 w-full overflow-auto rounded-md bg-dark-600 py-1 text-base shadow-lg ring ring-gray-600 sm:text-sm focus:outline-none"
+                <div class="flex">
+                  <!-- Output -->
+                  <ListboxButton
+                    class="relative mx-auto max-w-xs w-full cursor-default border border-gray-600 rounded-md bg-dark-600 py-1.5 pl-3 pr-10 text-left text-gray-200 shadow-sm sm:text-sm"
+                    focus="border-indigo-500 outline-none ring-2 ring-indigo-500 ring-offset-2"
+                  >
+                    <span class="block truncate">{{
+                      selectedLanguages.map((language) => language.label).join(', ')
+                    }}</span>
+
+                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                      <div aria-hidden="true" class="i-carbon-chevron-down h-5 w-5 text-gray-400" />
+                    </span>
+                  </ListboxButton>
+                </div>
+
+                <!-- Selector -->
+                <transition
+                  leave-active-class="transition ease-in duration-100" leave-from-class="opacity-100"
+                  leave-to-class="opacity-0"
                 >
                   <!--  -->
 
-                  <ListboxOption
-                    v-for="language in supportedLanguages" :key="language.value"
-                    v-slot="{ active, selected }" :value="language" as="template"
+                  <ListboxOptions
+                    class="absolute z-10 mt-4 max-h-60 w-full overflow-auto rounded-md bg-dark-600 py-1 text-base shadow-lg ring ring-gray-600 sm:text-sm focus:outline-none"
                   >
-                    <li
-                      :class="[active ? 'text-white bg-indigo-600' : 'text-gray-200']"
-                      class="relative cursor-default select-none py-2 pl-3 pr-9"
+                    <!--  -->
+
+                    <ListboxOption
+                      v-for="language in supportedLanguages" :key="language.value"
+                      v-slot="{ active, selected }" :value="language" as="template"
                     >
-                      <!--  -->
-
-                      <span :class="[selected ? 'font-semibold' : 'font-normal']" class="block truncate">
-                        {{ language.label }}
-                      </span>
-
-                      <span
-                        v-if="selected"
-                        :class="[active ? 'text-white' : 'text-indigo-600']"
-                        class="absolute inset-y-0 right-0 flex items-center pr-4"
+                      <li
+                        :class="[active ? 'text-white bg-indigo-600' : 'text-gray-200']"
+                        class="relative cursor-default select-none py-2 pl-3 pr-9"
                       >
+                        <!--  -->
 
-                        <div aria-hidden="true" class="i-carbon-checkmark h-5 w-5" />
-                      </span>
-                    </li>
-                  </ListboxOption>
-                </ListboxOptions>
-              </transition>
+                        <span :class="[selected ? 'font-semibold' : 'font-normal']" class="block truncate">
+                          {{ language.label }}
+                        </span>
+
+                        <span
+                          v-if="selected"
+                          :class="[active ? 'text-white' : 'text-indigo-600']"
+                          class="absolute inset-y-0 right-0 flex items-center pr-4"
+                        >
+
+                          <div aria-hidden="true" class="i-carbon-checkmark h-5 w-5" />
+                        </span>
+                      </li>
+                    </ListboxOption>
+                  </ListboxOptions>
+                </transition>
+              </div>
+            </Listbox>
+          </template>
+
+          <!-- Output -->
+          <div
+            v-if="hasResults"
+            class="space-y-6"
+          >
+            <div class="flex justify-around">
+              <h3 class="text-lg font-semibold">
+                Recognized text
+              </h3>
+
+              <span class="inline-flex items-center rounded-full bg-indigo-800 px-2.5 py-0.5 text-xs font-medium">
+                <i
+                  :class="{
+                    'text-green': extractedConfidence >= 80,
+                    'text-amber': extractedConfidence >= 50 && extractedConfidence < 80,
+                    'text-red': extractedConfidence < 50,
+                  }"
+                  aria-hidden="true"
+                  class="i-carbon-circle-filled mr-1.5 h-3 w-3 -ml-0.5"
+                />
+
+                {{ extractedConfidence }}
+              </span>
             </div>
-          </Listbox>
-        </template>
 
-        <!-- Output -->
-        <div
-          v-if="hasResults"
-          class="space-y-6"
-        >
-          <div class="flex justify-around">
-            <h3 class="text-lg font-semibold">
-              Recognized text
-            </h3>
-
-            <span class="inline-flex items-center rounded-full bg-indigo-800 px-2.5 py-0.5 text-xs font-medium">
-              <i
-                :class="{
-                  'text-green': extractedConfidence >= 80,
-                  'text-amber': extractedConfidence >= 50 && extractedConfidence < 80,
-                  'text-red': extractedConfidence < 50,
-                }"
-                aria-hidden="true"
-                class="i-carbon-circle-filled mr-1.5 h-3 w-3 -ml-0.5"
+            <div class="relative">
+              <output
+                class="block whitespace-pre-wrap border border-transparent rounded bg-white p-1 text-black"
+                v-text="extractedText"
               />
 
-              {{ extractedConfidence }}
-            </span>
+              <button
+                class="absolute right-0 top-0 m-2 border border-transparent rounded-full bg-indigo-700 p-2 text-white hover:bg-indigo-800"
+                focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
+                type="button"
+                @click="copy()"
+              >
+                <div :class="[copied ? 'i-carbon-task' : 'i-carbon-task-add']" aria-hidden="true" class="h-6 w-6" />
+
+                <span class="sr-only">Copy output</span>
+              </button>
+            </div>
           </div>
 
-          <div class="relative">
-            <output
-              class="block whitespace-pre-wrap border border-transparent rounded bg-white p-1 text-black"
-              v-text="extractedText"
-            />
+          <!-- Buttons -->
+          <div v-if="hasImage && !isProcessing" class="text-center">
+            <button
+              v-if="!hasResults"
+              class="inline-flex items-center border border-transparent rounded-full bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
+              focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
+              hover="bg-indigo-700"
+              type="submit"
+            >
+              <span class="mr-2 rounded-full bg-indigo-700 p-2 -ml-2">
+                <div aria-hidden="true" class="i-carbon-scan-alt h-5 w-5" />
+              </span>
+
+              Extract Text
+            </button>
 
             <button
-              class="absolute right-0 top-0 m-2 border border-transparent rounded-full bg-indigo-700 p-2 text-white hover:bg-indigo-800"
+              v-else
+              class="inline-flex items-center border border-transparent rounded-full bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
               focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
-              type="button"
-              @click="copy()"
+              hover="bg-indigo-700"
+              type="reset"
             >
-              <div :class="[copied ? 'i-carbon-task' : 'i-carbon-task-add']" aria-hidden="true" class="h-6 w-6" />
+              <span class="mr-2 rounded-full bg-indigo-700 p-2 -ml-2">
+                <div aria-hidden="true" class="i-carbon-reset h-5 w-5" />
+              </span>
 
-              <span class="sr-only">Copy output</span>
+              Restart
             </button>
           </div>
-        </div>
+        </form>
+      </div>
+    </section>
 
-        <!-- Buttons -->
-        <div v-if="hasImage && !isProcessing" class="text-center">
-          <button
-            v-if="!hasResults"
-            class="inline-flex items-center border border-transparent rounded-full bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
-            focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
-            hover="bg-indigo-700"
-            type="submit"
+    <!-- Testimonials -->
+    <section class="mb-12 mt-24 flex flex-col items-center gap-6">
+      <!-- Circle -->
+      <div class="mx-auto max-w-[max-content] rounded-full bg-[#221d21] px-18 py-12">
+        <!-- Header -->
+        <span class="sr-only">
+          Reviewed on Product Hunt
+        </span>
+
+        <a
+          href="https://www.producthunt.com/products/image-to-text-2/reviews?utm_source=badge-product_rating&utm_medium=badge&utm_souce=badge-image-to-text-2" target="_blank"
+        >
+          <img
+            width="242"
+            height="108"
+            loading="lazy"
+            src="https://api.producthunt.com/widgets/embed-image/v1/product_rating.svg?product_id=503138&theme=dark"
+            alt="Product rating"
           >
-            <span class="mr-2 rounded-full bg-indigo-700 p-2 -ml-2">
-              <div aria-hidden="true" class="i-carbon-scan-alt h-5 w-5" />
-            </span>
+        </a>
+      </div>
+    </section>
 
-            Extract Text
-          </button>
-
-          <button
-            v-else
-            class="inline-flex items-center border border-transparent rounded-full bg-indigo-600 px-6 py-1.5 text-base font-medium text-white shadow-sm"
-            focus="outline-none ring-2 ring-indigo-500 ring-offset-2"
-            hover="bg-indigo-700"
-            type="reset"
-          >
-            <span class="mr-2 rounded-full bg-indigo-700 p-2 -ml-2">
-              <div aria-hidden="true" class="i-carbon-reset h-5 w-5" />
-            </span>
-
-            Restart
-          </button>
-        </div>
-      </form>
-    </div>
+    <!-- TODO: Add steps section -->
+    <!-- TODO: Add example section -->
+    <section />
   </div>
 </template>

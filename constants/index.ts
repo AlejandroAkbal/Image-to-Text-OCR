@@ -1,2 +1,2 @@
-export const appName = 'Image to Text OCR'
-export const appDescription = 'Extract text from any image using OCR, locally on your device, privacy friendly!'
+export const appName = 'Copy text from image'
+export const appDescription = 'Extract and copy text from any image using OCR'
