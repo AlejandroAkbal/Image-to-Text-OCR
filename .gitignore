@@ -4,6 +4,8 @@ dist
 .output
 .nuxt
 .env
+.idea/
+public/assets/fonts
 
 ### VisualStudioCode template
 .vscode/*

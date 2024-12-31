@@ -1,10 +1,7 @@
 export default defineNuxtConfig({
-  ssr: false,
-
   modules: [
     '@vueuse/nuxt',
     '@unocss/nuxt',
-    '@pinia/nuxt',
   ],
 
   vite: {
@@ -23,12 +20,8 @@ export default defineNuxtConfig({
         target: 'esnext',
       },
     },
-    // TODO: Disabled until prerendering works
-    // prerender: {
-    //   crawlLinks: false,
-    //   routes: ['/'],
-    // },
   },
 
   telemetry: false,
+  compatibilityDate: '2024-12-31',
 })
